@@ -1,0 +1,207 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  background-color: #ffffff;
+  overflow: hidden;
+  margin: 0;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+/* Style the header */
+.header {
+	background-color: #f1f1f1;
+	padding: 0px;
+	text-align: center;
+}
+
+/* Create three unequal columns that floats next to each other */
+.column {
+	float: left;
+	padding: 2px;
+	height: 960px;
+/*	overflow: scroll;*/
+}
+
+/* Left column */
+.column.left {
+	width: 0%;
+}
+
+/* Right column */
+.column.side {
+	width: 25%;
+    direction: ltr; height: 960px; overflow: auto; padding: 16px 18px; font: 16px/18px Arial, Helvetica, sans-serif; background: rgba(255,255,255,0.95); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px;
+}
+
+/* Middle column */
+.column.middle {
+	width: 75%;
+	height: 960px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+/* Responsive layout - makes the three columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+	.column.side, .column.middle, .column.left {
+		width: 100%;
+	}
+}
+
+.info { text-align: center; direction: ltr; max-height: 500px; max-width: 300px; overflow: auto; padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: rgba(255,255,255,0.95); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px;
+}
+.info ul { padding-right: 20px}
+.info p {text-align: center; font-weight: bold; margin: 0px}
+.info h4 { margin: 0 0 5px; color: #777; }
+.info h3 { margin: 0 0 5px; color: #777; }
+
+.slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.legend { height: auto; max-width: 160px; text-align: center; line-height: 18px; color: #555; background: rgba(255,255,255,0.95); padding: 6px 8px; border-radius: 5px;}
+.legend i { width: 18px; height: 18px; float:left; margin-right: 4px; opacity: 1.0; }
+.legend h3 {margin: 0px 0px 5px 0px;}
+
+#map { width: 100%; height: 100%; }
+
+.savefilecontrol { text-align: left; line-height: 18px; color: #555; background: white; background: rgba(255,255,255,0.8); padding: 6px 8px; border-radius: 5px;}
+.savefilecontrol i { width: 18px; height: 18px; float: left; margin-right: 4px; opacity: 1.0; }
+
+/* (A) SHARED CLASS */
+.box {
+  margin: 6px;
+  padding: 6px;
+  font-size: 12px;
+  text-align: center;
+}
+ 
+ /* (B) BOX VARIATIONS */
+/* (B1) INFORMATION BOX */
+.infobox {
+  color: #111;
+  background: #EEE;
+  border: 1px solid black;
+}
+ 
+/* (B2) WARNING BOX */
+.warnbox {
+  color: darkmagenta;
+  background: lightpink;
+  border: 1px solid darkred;
+}
+
+.leaflet-popup-content {
+    margin: 5px 5px;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    line-height: 1.2;
+}
+
+/* move popup to left of marker */
+    /*
+    .leaflet-popup {
+        position: relative;
+        top: -20px;
+        text-align: center;
+    }
+    
+    .leaflet-popup-content-wrapper {
+        position: relative;
+        padding: 1px;
+        text-align: left;
+        border-radius: 12px;
+        left: -55%;
+    }
+    
+    .leaflet-popup-tip-container {
+        width: 40px;
+        height: 20px;
+        position: relative;
+        left: 50%;
+        top: -42px;
+        margin-left: -20px;
+        overflow: hidden;
+        pointer-events: none;
+        transform: rotate(270deg);
+        }
+    */
+
+.line-table {
+  text-align: center;
+  direction: ltr;
+  border: solid 1px #DDEEEE;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font: normal 13px Arial, sans-serif;
+  align-self: center;
+}
+.line-table thead th {
+  text-align: center;
+  background-color: #DDEFEF;
+  border: solid 1px #DDEEEE;
+  color: #336B6B;
+  padding: 10px;
+  text-shadow: 1px 1px 1px #fff;
+  max-width: 45px;
+  border-bottom: solid 1px darkgrey;
+}
+.line-table tbody td {
+  border: solid 1px #DDEEEE;
+  color: #333;
+  padding: 2px;
+  text-shadow: 1px 1px 1px #fff;
+  word-wrap: break-word;
+  max-width: 45px;
+}
+
+.line-table tbody tr.line-route {
+  background-color: rgba(192, 198, 190, 0.3);
+}
+

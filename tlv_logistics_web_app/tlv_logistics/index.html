@@ -1,0 +1,406 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title>TLV Logistics Pickup and Dropoff</title>
+	<link rel="stylesheet" href="../css/index.css" />
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" type="image/x-icon" href="../docs/images/favicon.ico" />
+
+	<link rel="stylesheet" href="../dist/leaflet.css" />
+	<script src="../dist/leaflet.js" ></script>
+<!--
+	<link rel="stylesheet" href="../css/leaflet-slider.css"/>
+-->
+	<link rel="stylesheet" href="../css/topnav.css"/>
+</head>
+<body>
+<script>
+	var showAbout = true;
+	//console.log(showAbout);
+	function displayAbout(){
+		//console.log(showAbout);
+		if (showAbout) {
+			document.getElementById('about').style.display='block';
+			showAbout = false;
+		} else {
+			document.getElementById('about').style.display='none';
+			showAbout = true;
+		};
+	}
+	function displayHome() {
+		window.location.href="../index.html";
+	}
+	function displaySelf() {
+		window.location.href="index.html";
+	}
+</script>
+
+<div class="topnav">
+	<button type="button" onclick="displayAbout()">About - אודות</button>
+	<button type="button" onclick="displaySelf()">דף הבית</button>
+	<div class="main-button">
+		<button type="button" onclick="displaySelf()">TLV Logistics Pickup and Dropoff</button>
+	</div>
+</div>
+
+<SCRIPT LANGUAGE="JavaScript">
+var min_supply2demand = 0;
+function testResults (form) {
+	min_supply2demand = form.s2d.value;
+	//sel_line = form.line.value;
+	//console.log(min_supply2demand, sel_line);
+	s2dGeojson.clearLayers();
+	s2dGeojson.addData(tlv_logistics_s2d);
+	//console.log(s2dGeojson._map);
+	if (s2dGeojson._map) {s2dGeojson.bringToFront();};
+    //alert ("You typed: " + min_taz_pop +', '+ max_taz_area  +', '+ suff_pt_access_tlv_logistics_s2d);
+}
+
+var sel_s2d = 's2d';
+function get_selection() {
+	freezHighlight = false;
+	sel_s2d = document.getElementById("s2d-select").value
+	//console.log(sel_s2d);
+	s2dGeojson.clearLayers();
+	s2dGeojson.addData(tlv_logistics_s2d);
+	infotlv_logistics_s2d.update();
+	map.removeControl(legendtlv_logistics_s2d );
+	legendtlv_logistics_s2d.addTo(map);
+/*
+	map.removeLayer(s2dGeojson);
+	addlayer();
+	info.update();
+
+*/
+}
+</SCRIPT>
+
+<div class="row">
+    <div class="column middle">
+        <div id='map'></div>
+    </div>
+    <div class="column side">
+        <h2>TLV Logistics Supply vs Demand</h2>
+		<!--
+		<FORM NAME="myform" ACTION="" METHOD="GET"><h3>filter segments: </h3>
+		<label for="q1">min supply2demand:</label>
+		<input type="number" id="q1" name="s2d" value="0" min="0" max="20" step="1"><br>
+
+		<label for="q2">Line:</label>
+		<input type="text" id="q2" name="line" value="*all*" minlength="5" maxlength="5" >
+
+		<INPUT TYPE="button" NAME="button" Value="Click" onClick="testResults(this.form)">
+		</FORM>
+		-->
+		
+		<select name="s2d" id="s2d-select" onchange="get_selection()">
+            <option value="s2d">supply to demand ratio</option>
+            <option value="supply">supply</option>
+            <option value="demand">demand</option>
+        </select>
+		
+        <div id='right_col1'></div>
+		<div id='right_col2'></div>
+    </div>
+</div>
+
+<div id="about" style="display: none;">
+	<table style="width:100%">
+		<tr>
+			<th id="aboutE" style="width:50%; text-align: left; font-weight: normal;">***</th>
+			<th id="aboutH" style="width:50%; text-align: right; font-weight: normal; direction: rtl;">***</th>
+		</tr>
+	</table>
+</div>
+<!--
+<script src="../dist/leaflet-slider.js"></script>
+-->
+<script type="text/javascript" src="tlv_logistics_s2d.js"></script>
+
+<script type="text/javascript">
+/*
+	var initslidervalue = 45;
+	var slidervalue = initslidervalue;
+	var dur15 = slidervalue.toString();
+*/
+	var map = L.map('map', {
+		closePopupOnClick: false
+	}).setView([32.079277, 34.779737], 14);
+
+	var Stamen_TonerLite = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
+		attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+		subdomains: 'abcd',
+		minZoom: 0,
+		maxZoom: 18,
+		ext: 'png'
+	}).addTo(map);
+
+	var OpenStreetMap_BlackAndWhite = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+		maxZoom: 18,
+		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+	});
+
+	var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 19,
+		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+	});
+
+//===============================================================================================
+
+	// control that shows info on hover
+	var infotlv_logistics_s2d = L.control();
+
+	infotlv_logistics_s2d.onAdd = function (map) {
+		this._div = L.DomUtil.create('div', 'info');
+		this.update();
+		return this._div;
+	};
+
+	infotlv_logistics_s2d.update = function (props) {
+		document.getElementById("right_col1").innerHTML = '<h3>supply vs demand</h3>' +
+			'<ul class="instructions">' +
+			'<li>hover to show supply and demand</li>' +
+			'<li>click to freez display</li>'
+		'</ul>';
+		if (props){
+			var seg_supply = Number(props['sum_hours_x_meters_buff100']).toFixed(0)
+			var seg_demand = Number(props['sum_weekly_delivery_freq_buff100']).toFixed(0)
+			var seg_s2d = Number(props['min_per_delivery_buff100']).toFixed(0)
+			var s2dText = '';
+			s2dText += '<p>'
+			s2dText += 'street: ' + props['_t_street'] + '<br>'
+			s2dText += 'segment length [meters]: ' + Number(props['seg_len']).toFixed(0) + '<br>'
+			s2dText += 'commercial front [sides]: ' + props['commfront'] + '<br>'
+			s2dText += 'supply [meters x weekly hours]: ' + seg_supply + '<br>'
+			s2dText += 'demand [weekly deliveries]: ' + seg_demand + '<br>' + '<br>'
+			s2dText += 'supply to demand ratio [min per delivery]: ' + seg_s2d
+			s2dText += '</p>';
+			s2dText = s2dText.replace('[min per delivery]: -1', ': d=0').replace('[min per delivery]: -2', ': s=0 & d=0');
+			document.getElementById("right_col1").innerHTML += s2dText;
+			//this._div.innerHTML += s2dText;
+		}else{
+			var s2dNoText = '';
+			s2dNoText += '<p><br>'
+			s2dNoText += '</p>';
+			document.getElementById("right_col1").innerHTML += s2dNoText;
+		}
+	};
+
+	//infotlv_logistics_s2d.addTo(map);
+	infotlv_logistics_s2d.update()
+
+//==================================================================================================
+
+//===================================================================================
+
+	// get color depending on value
+	function getColortlv_logistics_s2d(d) {
+		if (sel_s2d == 's2d') {
+		return  d >= 120 ? '#d7191c' :
+				d >= 100 ? '#d7191c' :
+				d >= 80 ? '#f59053' :
+				d >= 60 ? '#fedf99' :
+				d >= 40 ? '#ddf1b4' :
+				d >= 20 ? '#91cba8' :
+				d >= 0  ? '#589cc6' :
+				d >= -1  ? '#800000':
+				'#d3d3d3';
+		}
+		if (sel_s2d == 'supply') {
+		return  d >= 10000 ? '#d7191c' :
+				d >= 5000 ? '#d7191c' :
+				d >= 1500 ? '#f59053' :
+				d >= 1000 ? '#fedf99' :
+				d >= 500 ? '#ddf1b4' :
+				d >= 250 ? '#91cba8' :
+				d >= 0  ? '#589cc6' :
+				'#589cc6';
+		}
+		if (sel_s2d == 'demand') {
+		return  d >= 3000 ? '#d7191c' :
+				d >= 2000 ? '#d7191c' :
+				d >= 1000 ? '#f59053' :
+				d >= 750 ? '#fedf99' :
+				d >= 500 ? '#ddf1b4' :
+				d >= 250 ? '#91cba8' :
+				d >= 0  ? '#589cc6' :
+				'#589cc6';
+		}
+	}
+	
+	var s2dGeojson;
+	var freezHighlight = false;
+	//======================================================================
+	function highlightFeaturetlv_logistics_s2d(e) {
+		if (!freezHighlight) {
+			var layer = e.target;
+			layer.setStyle({
+				weight: 3,
+				color: 'black',
+				dashArray: '',
+				opacity: 0.8,
+				fillOpacity: 0.8
+			});
+			if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+				layer.bringToFront();
+			}
+			infotlv_logistics_s2d.update(layer.feature.properties);
+		}
+	}
+
+	function resetHighlighttlv_logistics_s2d(e) {
+		if (!freezHighlight) {
+			s2dGeojson.resetStyle(e.target);
+			infotlv_logistics_s2d.update();
+		}
+	}
+	/*
+	function showTagtlv_logistics_s2d(e) {
+		var popuptlv_logistics_s2d = new L.popup({
+			minWidth: 20,
+			//maxHeight: 32,
+			autoClose: false,
+			closeOnClick: false
+		});
+		//console.log(e.target.feature.properties.tlv_logistics_s2d);
+		var tlv_logistics_s2d = Number(e.target.feature.properties.tpw_change).toFixed(0);
+		map.addLayer(popuptlv_logistics_s2d
+			.setLatLng(e.latlng)
+			.setContent('<div style="text-align:center;"><small><b>'+ tlv_logistics_s2d +'</div>')
+		);
+	}
+	*/
+	var frozenLayer;
+	function clickHandler(e) {
+		freezHighlight = !freezHighlight; // toggle freezHighlight
+		if (freezHighlight) frozenLayer = e.target;
+		if (!freezHighlight) {
+			s2dGeojson.resetStyle(frozenLayer);
+			highlightFeaturetlv_logistics_s2d(e);
+		}
+	}
+	
+	function onEachFeaturetlv_logistics_s2d(feature, layer) {
+		layer.on({
+			mouseover: highlightFeaturetlv_logistics_s2d,
+			mouseout: resetHighlighttlv_logistics_s2d,
+			//click: zoomToFeature
+			//click: showTagtlv_logistics_s2d
+			click: clickHandler
+		});
+		//layer.bindPopup(feature.properties["ID"]);
+	}
+	
+	function filtertlv_logistics_s2d(feature, layer) {
+		line_len = Number(feature.properties['line_len']).toFixed(0)
+		var lineMatch = false;
+		for (let i = 0; i < line_len; i++) {
+			let [abs_tpw_change_s, route_mk, agency_id, tpw1, tpw2, abs_tpw_change] = 
+				feature.properties['line'][i].replace('(', '').replace(')','').split(',')
+			var route_mk_clean = route_mk.replaceAll("'","").replaceAll(" ","")
+			lineMatch = lineMatch || (route_mk_clean == sel_line) || ('*all*' == sel_line)
+			//console.log((route_mk.replaceAll("'","")).length , (sel_line).length, lineMatch)
+		}
+		return  (Math.abs(feature.properties['tpw_change']) >= min_supply2demand ) && lineMatch
+	}
+	
+	function styletlv_logistics_s2d(feature) {
+		var props = feature.properties;
+		//console.log(sel_s2d);
+		if (sel_s2d == 's2d') {
+			return {
+				fillColor: getColortlv_logistics_s2d(props['min_per_delivery_buff100']),
+				color: "black",
+				weight: 0.5,
+				opacity: 0.2,
+				fillOpacity: 0.7
+			};
+		};
+		if (sel_s2d == 'supply') {
+			return {
+				fillColor: getColortlv_logistics_s2d(props['sum_hours_x_meters_buff100']),
+				color: "black",
+				weight: 0.5,
+				opacity: 0.2,
+				fillOpacity: 0.7
+			};
+		};
+		if (sel_s2d == 'demand') {
+			return {
+				fillColor: getColortlv_logistics_s2d(props['sum_weekly_delivery_freq_buff100']),
+				color: "black",
+				weight: 0.5,
+				opacity: 0.2,
+				fillOpacity: 0.7
+			};
+		};
+	}
+
+	s2dGeojson = new L.geoJson(tlv_logistics_s2d, {
+		style: styletlv_logistics_s2d,
+		onEachFeature: onEachFeaturetlv_logistics_s2d,
+		//filter: filtertlv_logistics_s2d
+	}).addTo(map);
+	
+	//console.log(tlv_logistics_s2d);
+	//===================================================================================
+
+	//=========================================================================================
+	//s2dGeojson.bringToFront();
+
+	//map.attributionControl.addAttribution('Navitia');
+
+	var legendtlv_logistics_s2d = L.control({position: 'bottomleft'});
+	legendtlv_logistics_s2d.onAdd = function (map) {
+		var div = L.DomUtil.create('div', 'info legend'),
+			grades = [0, 20, 40, 60, 80, 100, 120],
+			labels = [],
+			legend_title = '',
+			from, to;
+		if (sel_s2d == 's2d') {grades = [-2, 0, 20, 40, 60, 80, 100, 120, -1]};
+		if (sel_s2d == 'supply') {grades = [0, 250, 500, 1000, 1500, 5000, 10000]};
+		if (sel_s2d == 'demand') {grades = [0, 250, 500, 750, 1000, 2000, 3000]};
+		for (var i = 0; i < grades.length; i++) {
+			from = grades[i];
+			to = grades[i + 1];
+			labels.push(
+				'<i style="background:' + getColortlv_logistics_s2d(from) + '"> </i> ' +
+				from + (to ? '&ndash;' + to : '+'));
+		}
+		if (sel_s2d == 's2d') {legend_title = 'supply to demand';};
+		if (sel_s2d == 'supply') {legend_title = 'supply';};
+		if (sel_s2d == 'demand') {legend_title = 'demand';};
+		var lables_string = labels.join('<br>').replace('-1+', 'd=0').replace('-2+', 's=0 & d=0');
+		//console.log(lables_string)
+		div.innerHTML = '<h3>'+legend_title+'</h3>'+lables_string;
+		return div;
+	};
+
+	legendtlv_logistics_s2d.addTo(map);
+	
+	var baseMaps = {
+		"(Stamen Toner Lite) רקע שחור-לבן": Stamen_TonerLite,
+		//"(OSM) רקע שחור-לבן": OpenStreetMap_BlackAndWhite,
+		"(OSM) רקע צבעוני": OpenStreetMap_Mapnik
+	};
+
+	var overlayMaps = {
+		"tlv_logistics_s2d": s2dGeojson,
+	};
+	
+	L.control.layers(baseMaps, overlayMaps, {position: 'topleft'}).addTo(map);
+
+</script>
+<script src="../docs/tool_descriptions_e.js" ></script>
+<script src="../docs/tool_descriptions_h.js" ></script>
+<script>
+	document.getElementById("aboutE").innerHTML = descEtool2 
+	document.getElementById("aboutH").innerHTML = descHtool2 
+</script>
+
+</body>
+</html>
