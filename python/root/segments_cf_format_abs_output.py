@@ -39,7 +39,9 @@ metric_col_list = ['sum_hours_x_meters_buff100',
                     'sum_hours_x_meters_snap100', 
                     'sum_weekly_delivery_freq_snap100', 
                     'min_per_delivery_buff100', 
-                    'min_per_delivery_snap100']
+                    'min_per_delivery_snap100',
+                    'd2s_buff100',
+                    'd2s_snap100']
 #print(metric_col_list)
 
 #project from 2039 to crs 4326 for leaflet

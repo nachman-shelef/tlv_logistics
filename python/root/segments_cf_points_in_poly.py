@@ -182,6 +182,32 @@ def min_per_delivery_snap100(row):
         return -1
 segments_cf_poly_metrics_gdf['min_per_delivery_snap100'] = segments_cf_poly_metrics_gdf.apply(min_per_delivery_snap100, axis=1)
 
+def d2s_buff100(row):
+    s = row['sum_hours_x_meters_buff100']*3/6 # assume 6meters and 20min to get weekly delevery supply
+    d = row['sum_weekly_delivery_freq_buff100']
+    if s > 0 : # demand >= 0, supply > 0
+        return  d / s
+    elif d == 0: # demand == 0, supply == 0
+        print(s, d, -2)
+        return -2
+    else: # demand > 0, supply == 0
+        print(s, d, -1)
+        return -1
+segments_cf_poly_metrics_gdf['d2s_buff100'] = segments_cf_poly_metrics_gdf.apply(d2s_buff100, axis=1)
+
+def d2s_snap100(row):
+    s = row['sum_hours_x_meters_snap100']*3/6 # assume 6meters and 20min to get weekly delevery supply
+    d = row['sum_weekly_delivery_freq_snap100']
+    if s > 0 : # demand >= 0, supply > 0
+        return  d / s
+    elif d == 0: # demand == 0, supply == 0
+        print(s, d, -2)
+        return -2
+    else: # demand > 0, supply == 0
+        print(s, d, -1)
+        return -1
+segments_cf_poly_metrics_gdf['d2s_snap100'] = segments_cf_poly_metrics_gdf.apply(d2s_snap100, axis=1)
+
 """
 segments_cf_poly_metrics_gdf['min_per_delivery_buff100'] = (60.0*segments_cf_poly_metrics_gdf['sum_hours_x_meters_buff100']/6.0)/segments_cf_poly_metrics_gdf['sum_weekly_delivery_freq_buff100'] 
 segments_cf_poly_metrics_gdf['min_per_delivery_buff100'] = segments_cf_poly_metrics_gdf['min_per_delivery_buff100'].fillna(0.0)
