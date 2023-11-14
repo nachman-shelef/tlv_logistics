@@ -60,7 +60,7 @@ function testResults (form) {
     //alert ("You typed: " + min_taz_pop +', '+ max_taz_area  +', '+ suff_pt_access_tlv_logistics_s2d);
 }
 
-var sel_s2d = 's2d';
+var sel_s2d = 'd2s';
 function get_selection() {
 	freezHighlight = false;
 	sel_s2d = document.getElementById("s2d-select").value
@@ -98,7 +98,8 @@ function get_selection() {
 		-->
 		
 		<select name="s2d" id="s2d-select" onchange="get_selection()">
-            <option value="s2d">supply to demand ratio</option>
+			<option value="d2s">demand to supply ratio</option>
+			<option value="s2d">supply to demand ratio</option>
             <option value="supply">supply</option>
             <option value="demand">demand</option>
         </select>
@@ -116,10 +117,13 @@ function get_selection() {
 		</tr>
 	</table>
 </div>
+
+<script type="text/javascript" src="tlv_logistics_s2d.js"></script>
+<script type="text/javascript" src="voc_output_to_web_app_v1.js"></script>
+
 <!--
 <script src="../dist/leaflet-slider.js"></script>
 -->
-<script type="text/javascript" src="tlv_logistics_s2d.js"></script>
 
 <script type="text/javascript">
 /*
@@ -167,19 +171,23 @@ function get_selection() {
 			'<li>click to freez display</li>'
 		'</ul>';
 		if (props){
-			var seg_supply = Number(props['sum_hours_x_meters_buff100']).toFixed(0)
+			var seg_supply = Number(props['sum_hours_x_meters_buff100']*3/6).toFixed(0)
 			var seg_demand = Number(props['sum_weekly_delivery_freq_buff100']).toFixed(0)
-			var seg_s2d = Number(props['min_per_delivery_buff100']).toFixed(0)
+			var seg_s2d = Number(props['min_per_delivery_buff100']/20).toFixed(2)
+			var seg_d2s = Number(props['d2s_buff100']).toFixed(2)
 			var s2dText = '';
 			s2dText += '<p>'
 			s2dText += 'street: ' + props['_t_street'] + '<br>'
 			s2dText += 'segment length [meters]: ' + Number(props['seg_len']).toFixed(0) + '<br>'
 			s2dText += 'commercial front [sides]: ' + props['commfront'] + '<br>'
-			s2dText += 'supply [meters x weekly hours]: ' + seg_supply + '<br>'
+			s2dText += 'supply [weekly deliveries]: ' + seg_supply + '<br>'
 			s2dText += 'demand [weekly deliveries]: ' + seg_demand + '<br>' + '<br>'
-			s2dText += 'supply to demand ratio [min per delivery]: ' + seg_s2d
+			s2dText += 'supply to demand ratio<br>[@20min per delivery]: ' + seg_s2d + '<br>'
+			s2dText += 'demand to supply ratio<br>[@20min per delivery]: ' + seg_d2s 
 			s2dText += '</p>';
-			document.getElementById("right_col1").innerHTML += s2dText.replace('[min per delivery]: -1', ': d=0').replace([min per delivery]: -2', ': s=0 & d=0');
+			s2dText = s2dText.replace('<br>[@20min per delivery]: -0.05', ': d=0').replace('<br>[@20min per delivery]: -0.10', ': s=0 & d=0');
+			s2dText = s2dText.replace('<br>[@20min per delivery]: -1', ': s=0').replace('<br>[@20min per delivery]: -2.00', ': s=0 & d=0');
+			document.getElementById("right_col1").innerHTML += s2dText;
 			//this._div.innerHTML += s2dText;
 		}else{
 			var s2dNoText = '';
@@ -199,39 +207,49 @@ function get_selection() {
 	// get color depending on value
 	function getColortlv_logistics_s2d(d) {
 		if (sel_s2d == 's2d') {
-		return  d >= 120 ? '#d7191c' :
-				d >= 100 ? '#d7191c' :
-				d >= 80 ? '#f59053' :
-				d >= 60 ? '#fedf99' :
-				d >= 40 ? '#ddf1b4' :
-				d >= 20 ? '#91cba8' :
-				d >= 0  ? '#589cc6' :
-				d >= -1  ? '#800000':
+		return  d >= 100/20 ? '#589cc6' :
+				d >= 40/20 ? '#91cba8' :
+				d >= 20/20 ? '#ddf1b4' :
+				d >= 10/20 ? '#fedf99' :
+				d >= 5/20 ? '#f59053' :
+				d >= 0/20  ? '#d7191c' :
+				d >= -1/20  ? '#000080':
 				'#d3d3d3';
 		}
+		if (sel_s2d == 'd2s') {
+		return  d < -1 ? '#d3d3d3' :
+				d < 0 ? '#800000' :
+				d < 0.5 ? '#589cc6' :
+				d < 1 ? '#91cba8' :
+				d < 2  ? '#ddf1b4' :
+				d < 5  ? '#fedf99' :
+				'#d7191c';
+		}
 		if (sel_s2d == 'supply') {
-		return  d >= 10000 ? '#d7191c' :
-				d >= 5000 ? '#d7191c' :
-				d >= 1500 ? '#f59053' :
-				d >= 1000 ? '#fedf99' :
-				d >= 500 ? '#ddf1b4' :
-				d >= 250 ? '#91cba8' :
-				d >= 0  ? '#589cc6' :
+		return  d >= 10000*3/6 ? '#d7191c' :
+				d >= 5000*3/6 ? '#d7191c' :
+				d >= 1500*3/6 ? '#f59053' :
+				d >= 1000*3/6 ? '#fedf99' :
+				d >= 500*3/6 ? '#ddf1b4' :
+				d >= 250*3/6 ? '#91cba8' :
+				d >= 0*3/6  ? '#589cc6' :
 				'#589cc6';
 		}
 		if (sel_s2d == 'demand') {
-		return  d >= 3000 ? '#d7191c' :
-				d >= 2000 ? '#d7191c' :
-				d >= 1000 ? '#f59053' :
-				d >= 750 ? '#fedf99' :
-				d >= 500 ? '#ddf1b4' :
-				d >= 250 ? '#91cba8' :
+		return  d >= 5000 ? '#d7191c' :
+				d >= 2500 ? '#d7191c' :
+				d >= 750 ? '#f59053' :
+				d >= 500 ? '#fedf99' :
+				d >= 250 ? '#ddf1b4' :
+				d >= 125 ? '#91cba8' :
 				d >= 0  ? '#589cc6' :
 				'#589cc6';
 		}
 	}
 	
 	var s2dGeojson;
+	var parkingGeojson;
+
 	var freezHighlight = false;
 	//======================================================================
 	function highlightFeaturetlv_logistics_s2d(e) {
@@ -312,7 +330,16 @@ function get_selection() {
 		//console.log(sel_s2d);
 		if (sel_s2d == 's2d') {
 			return {
-				fillColor: getColortlv_logistics_s2d(props['min_per_delivery_buff100']),
+				fillColor: getColortlv_logistics_s2d(props['min_per_delivery_buff100']/20),
+				color: "black",
+				weight: 0.5,
+				opacity: 0.2,
+				fillOpacity: 0.7
+			};
+		};
+		if (sel_s2d == 'd2s') {
+			return {
+				fillColor: getColortlv_logistics_s2d(props['d2s_buff100']),
 				color: "black",
 				weight: 0.5,
 				opacity: 0.2,
@@ -321,7 +348,7 @@ function get_selection() {
 		};
 		if (sel_s2d == 'supply') {
 			return {
-				fillColor: getColortlv_logistics_s2d(props['sum_hours_x_meters_buff100']),
+				fillColor: getColortlv_logistics_s2d(props['sum_hours_x_meters_buff100']*3/6),
 				color: "black",
 				weight: 0.5,
 				opacity: 0.2,
@@ -348,6 +375,96 @@ function get_selection() {
 	//console.log(tlv_logistics_s2d);
 	//===================================================================================
 
+    function showTagParking(e) {
+        var popup = new L.popup({
+        });
+        //console.log(e.target.feature.properties);
+		var props = e.target.feature.properties;
+		var parkingLessCars = props['no_2020_noon_parking'] - props['no_2020_noon_cars'];
+        map.addLayer(popup
+            .setLatLng(e.latlng)
+            .setContent('<div><b>'+'ParkingLessCars: '+parkingLessCars+'</b><br>'+
+				'Tatrova: '+props.ktatrova+'</b><br>'+
+				'Parking: '+props['no_2020_noon_parking']+'</b><br>'+
+				'Cars: '+props['no_2020_noon_cars']+'</b><br>'+
+				'</div>')
+        );
+    }
+
+    function highlightFeatureParking(e) {
+        var layer = e.target;
+        layer.setStyle({
+            weight: 18,
+            color: 'blue',
+			opacity: 0.2,
+			fillOpacity: 0.3,
+            dashArray: ''
+        });
+        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {layer.bringToFront();}
+		if (s2dGeojson._map) {s2dGeojson.bringToFront();};
+    }
+
+    function resetHighlightParking(e) {
+        parkingGeojson.resetStyle(e.target);
+    }
+
+    function onEachFeatureParking(feature, layer) {
+        layer.on({
+            mouseover: highlightFeatureParking,
+            mouseout: resetHighlightParking,
+            click: showTagParking
+        });
+    }
+
+    // get color depending on transitscore value
+    function getColorParking(d) {
+        return  d >= 3000 ? 'red' :
+                d >= 1000 ? 'orange' :
+                d >= 0 ? 'yellow' :
+                'green';
+    }
+
+    function styleParking(feature) {
+		var props = feature.properties;
+		var parkingLessCars = props['no_2020_noon_parking'] - props['no_2020_noon_cars'];
+        return {
+            weight: 2,
+            opacity: 1,
+            color: '#666',
+            dashArray: '3',
+            fillOpacity: 0.2,
+            fillColor: getColorParking(parkingLessCars)
+        };
+    }
+
+	parkingGeojson = new L.geoJson(tlvTatRova, {
+		style: styleParking,
+		onEachFeature: onEachFeatureParking
+		//filter: filterParking
+	});
+
+	var legendParking = L.control({position: 'bottomleft'});
+	legendParking.onAdd = function (map) {
+		var div = L.DomUtil.create('div', 'info legend'),
+			grades = [-5000, 0, 1000, 3000],
+			labels = [],
+			legend_title = '',
+			from, to;
+		for (var i = 0; i < grades.length; i++) {
+			from = grades[i];
+			to = grades[i+1];
+			labels.push(
+				'<i style="background:' + getColorParking(from+0.1) + '"> </i> ' +
+				from + (typeof to !== 'undefined'? (' to ' + to) : '+'));
+		}
+		legend_title = 'excess parking <br> at noon 2020';
+		//console.log(labels)
+		div.innerHTML = '<h3>'+legend_title+'</h3>'+labels.join('<br>');
+		return div;
+	};
+
+	legendParking.addTo(map);
+
 	//=========================================================================================
 	//s2dGeojson.bringToFront();
 
@@ -356,13 +473,14 @@ function get_selection() {
 	var legendtlv_logistics_s2d = L.control({position: 'bottomleft'});
 	legendtlv_logistics_s2d.onAdd = function (map) {
 		var div = L.DomUtil.create('div', 'info legend'),
-			grades = [0, 20, 40, 60, 80, 100, 120],
+			grades = [],
 			labels = [],
 			legend_title = '',
 			from, to;
-		if (sel_s2d == 's2d') {grades = [-2, 0, 20, 40, 60, 80, 100, 120, -1]};
-		if (sel_s2d == 'supply') {grades = [0, 250, 500, 1000, 1500, 5000, 10000]};
-		if (sel_s2d == 'demand') {grades = [0, 250, 500, 750, 1000, 2000, 3000]};
+		if (sel_s2d == 's2d') {grades = [-2/20, 0/20, 5/20, 10/20, 20/20, 40/20, 100/20, -1/20]};
+		if (sel_s2d == 'd2s') {grades = [-2, 0, 0.5, 1, 2, 5, -1]};
+		if (sel_s2d == 'supply') {grades = [0*3/6, 250*3/6, 500*3/6, 1000*3/6, 1500*3/6, 5000*3/6]};
+		if (sel_s2d == 'demand') {grades = [0, 125, 250, 500, 750, 2500]};
 		for (var i = 0; i < grades.length; i++) {
 			from = grades[i];
 			to = grades[i + 1];
@@ -370,10 +488,14 @@ function get_selection() {
 				'<i style="background:' + getColortlv_logistics_s2d(from) + '"> </i> ' +
 				from + (to ? '&ndash;' + to : '+'));
 		}
-		if (sel_s2d == 's2d') {legend_title = 'supply to demand';};
-		if (sel_s2d == 'supply') {legend_title = 'supply';};
-		if (sel_s2d == 'demand') {legend_title = 'demand';};
-		var lables_string = labels.join('<br>').replace('-1+', 'd=0').replace('-2+', 's=0 & d=0');
+		if (sel_s2d == 's2d') {legend_title = 'supply to demand<br>[@20min per delivery]';};
+		if (sel_s2d == 'd2s') {legend_title = 'demand to supply<br>[@20min per delivery]';};
+		if (sel_s2d == 'supply') {legend_title = 'supply<br>[weekly deliveries]';};
+		if (sel_s2d == 'demand') {legend_title = 'demand<br>[weekly deliveries]';};
+		var lables_string = labels.join('<br>')
+		//console.log(lables_string)
+		if (sel_s2d == 's2d') {lables_string = lables_string.replace('-0.05+', 'd=0').replace('-0.1+', 's=0 & d=0').replace('&ndash;-0.05', '+')};
+		if (sel_s2d == 'd2s') {lables_string = lables_string.replace('-1+', 's=0').replace('-2+', 's=0 & d=0').replace('&ndash;-1', '+')};
 		//console.log(lables_string)
 		div.innerHTML = '<h3>'+legend_title+'</h3>'+lables_string;
 		return div;
@@ -389,9 +511,15 @@ function get_selection() {
 
 	var overlayMaps = {
 		"tlv_logistics_s2d": s2dGeojson,
+		"Excess Parking": parkingGeojson,
 	};
 	
 	L.control.layers(baseMaps, overlayMaps, {position: 'topleft'}).addTo(map);
+
+	map.on('overlayadd', onOverlayAdd);
+	function onOverlayAdd(e){
+		if (s2dGeojson._map) {s2dGeojson.bringToFront();};
+	}
 
 </script>
 <script src="../docs/tool_descriptions_e.js" ></script>
